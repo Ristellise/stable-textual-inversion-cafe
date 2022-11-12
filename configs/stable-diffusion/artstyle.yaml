@@ -26,7 +26,7 @@ model:
         placeholder_strings: ["*"] #  * & ^ % @
         initializer_words: ["illustration","shading","girl","face"]
         per_image_tokens: false
-        num_vectors_per_token: 9
+        num_vectors_per_token: 20
         progressive_words: False
 
     unet_config:
@@ -79,13 +79,13 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 4
+    batch_size: 1
     num_workers: 16
     wrap: false
     train:
       target: ldm.data.personalized.PersonalizedBase
       params:
-        size: 576
+        size: 512
         set: train
         per_image_tokens: false
         repeats: 100
@@ -114,7 +114,7 @@ data:
     validation:
       target: ldm.data.personalized.PersonalizedBase
       params:
-        size: 576
+        size: 512
         set: val
         per_image_tokens: false
         repeats: 10
@@ -144,12 +144,12 @@ data:
 lightning:
   modelcheckpoint:
     params:
-      every_n_train_steps: 500
+      every_n_train_steps: 100
   callbacks:
     image_logger:
       target: main.ImageLogger
       params:
-        batch_frequency: 500
+        batch_frequency: 100
         max_images: 8
         increase_log_steps: False
 
