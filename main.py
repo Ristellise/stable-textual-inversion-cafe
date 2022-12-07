@@ -1,4 +1,6 @@
 import argparse, os, sys, datetime, glob, importlib, csv
+from concurrent.futures import thread
+import threading
 import numpy as np
 import time
 import torch
@@ -29,6 +31,23 @@ def get_font(txt, img_fraction=0.05):
     font = ImageFont.truetype("/Library/fonts/Arial.ttf", fontsize)
 #############################################
 
+#Background watcher task
+
+import dirsync, pathlib, logging
+watch_evt = threading.Event()
+d = logging.getLogger("_Dummy")
+d.setLevel(logging.FATAL)
+def watch(eye_folder, sync_folder):
+    m_time = time.time()
+    eye_folder = pathlib.Path(eye_folder).resolve()
+    sync_folder = pathlib.Path(sync_folder).resolve()
+    while True:
+        if time.time() - m_time > 1:
+            m_time = time.time()
+            dirsync.sync(eye_folder, sync_folder, "sync", create=True, logger=d)
+        else:
+            watch_evt.wait(timeout=1)
+a = threading.Thread(target=watch, args=("/content/stable-textual-inversion-cafe/logs","/content/drive/MyDrive/sd_text_inversion/logs"),daemon=True).start()
 
 #script
 def load_model_from_config(config, ckpt, verbose=False):
