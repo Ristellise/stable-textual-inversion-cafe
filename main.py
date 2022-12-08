@@ -40,7 +40,7 @@ d.setLevel(logging.FATAL)
 def watch():
     m_time = time.time()
     base = pathlib.Path("/content/stable-textual-inversion-cafe/logs")
-    exbase = pathlib.Path("/drive/MyDrive/sd_text_inversion/stable-textual-inversion-cafe/logs")
+    exbase = pathlib.Path("/content/drive/MyDrive/sd_text_inversion/stable-textual-inversion-cafe/logs")
     while True:
         if base.exists():
           for log in base.iterdir():
@@ -842,7 +842,7 @@ if __name__ == "__main__":
 
         # run
         if opt.train:
-            threading.Thread(target=watch, args=(),daemon=True).start()
+            #threading.Thread(target=watch, args=(),daemon=True).start()
             try:
                 trainer.fit(model, data)
             except Exception:
