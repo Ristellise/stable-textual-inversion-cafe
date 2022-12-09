@@ -33,28 +33,23 @@ def get_font(txt, img_fraction=0.05):
 
 #Background watcher task
 
-import pathlib, logging
-watch_evt = threading.Event()
-d = logging.getLogger("_Dummy")
-d.setLevel(logging.FATAL)
+import pathlib
 def watch():
-    m_time = time.time()
     base = pathlib.Path("/content/stable-textual-inversion-cafe/logs")
     exbase = pathlib.Path("/content/drive/MyDrive/sd_text_inversion/stable-textual-inversion-cafe/logs")
     while True:
         if base.exists():
           for log in base.iterdir():
-              log_ckpt = (base / log.name + "/checkpoints").resolve()
-              log_images = pathlib.Path("/drive/MyDrive/sd_text_inversion/stable-textual-inversion-cafe/logs/" + log.name + "/test_images").resolve()
-              log_ckpt.mkdir(parents=True, exist_ok=True)
-              log_images.mkdir(parents=True, exist_ok=True)
-              if log.joinpath("checkpoints").exists():
-                  for ckpt in log.joinpath("checkpoints").iterdir():
-                      log_ckpt.joinpath(ckpt.name).write_bytes(ckpt.read_bytes())
-              if log.joinpath("images").joinpath("train").exists():
-                  for image in log.joinpath("images").joinpath("train").iterdir():
-                      if image.stem.startswith("samples_scaled_gs"):
-                        log_images.joinpath(image.name).write_bytes(image.read_bytes())
+                # Export files
+                exports = [exbase.joinpath(f"{log.name}/checkpoints").resolve(), exbase.joinpath(f"{log.name}/text_images").resolve()]
+                [exp.mkdir(parents=True, exist_ok=True) for exp in exports] 
+                if log.joinpath("checkpoints").exists():
+                    for ckpt in log.joinpath("checkpoints").iterdir():
+                        exports[0].joinpath(ckpt.name).write_bytes(ckpt.read_bytes())
+                if log.joinpath("images").joinpath("train").exists():
+                    for image in log.joinpath("images").joinpath("train").iterdir():
+                        if image.stem.startswith("samples_scaled_gs"):
+                            exports[1].joinpath(image.name).write_bytes(image.read_bytes())
         time.sleep(10)
 
 #script

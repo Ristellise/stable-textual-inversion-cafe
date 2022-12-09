@@ -12,7 +12,6 @@ import torch.nn as nn
 import os
 import numpy as np
 import pytorch_lightning as pl
-from torch.optim.lr_scheduler import LambdaLR
 from einops import rearrange, repeat
 from contextlib import contextmanager
 from functools import partial
