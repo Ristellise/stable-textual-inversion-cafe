@@ -33,23 +33,34 @@ def get_font(txt, img_fraction=0.05):
 
 #Background watcher task
 
+def write_bytes(pathlib_path, data):
+    with open(pathlib_path, 'wb') as f:
+        f.write(data)
+
+def read_bytes(pathlib_path):
+    with open(pathlib_path, 'rb') as f:
+        return f.read()
+
 import pathlib
 def watch():
     base = pathlib.Path("/content/stable-textual-inversion-cafe/logs")
     exbase = pathlib.Path("/content/drive/MyDrive/sd_text_inversion/stable-textual-inversion-cafe/logs")
     while True:
         if base.exists():
-          for log in base.iterdir():
-                # Export files
-                exports = [exbase.joinpath(f"{log.name}/checkpoints").resolve(), exbase.joinpath(f"{log.name}/text_images").resolve()]
-                [exp.mkdir(parents=True, exist_ok=True) for exp in exports] 
+            for log in base.iterdir():
+                log_ckpt = exbase.joinpath(f"{log.stem}/checkpoints").resolve()
+                log_images = exbase.joinpath(f"{log.stem}/test_images").resolve()
+                log_images.mkdir(exist_ok=True,parents=True)
+                log_ckpt.mkdir(exist_ok=True,parents=True)
+
                 if log.joinpath("checkpoints").exists():
                     for ckpt in log.joinpath("checkpoints").iterdir():
-                        exports[0].joinpath(ckpt.name).write_bytes(ckpt.read_bytes())
+                        print(log_ckpt.joinpath(ckpt.name))
+                        write_bytes(log_ckpt.joinpath(ckpt.name), read_bytes(ckpt))
                 if log.joinpath("images").joinpath("train").exists():
                     for image in log.joinpath("images").joinpath("train").iterdir():
-                        if image.stem.startswith("samples_scaled_gs"):
-                            exports[1].joinpath(image.name).write_bytes(image.read_bytes())
+                        if image.stem.startswith("samples_scaled_gs") or image.stem.startswith("reconstruction_gs"):
+                            write_bytes(log_images.joinpath(image.name), read_bytes(image))
         time.sleep(10)
 
 #script
@@ -839,7 +850,7 @@ if __name__ == "__main__":
 
         # run
         if opt.train:
-            #threading.Thread(target=watch, args=(),daemon=True).start()
+            threading.Thread(target=watch, args=(),daemon=True).start()
             try:
                 trainer.fit(model, data)
             except Exception:
