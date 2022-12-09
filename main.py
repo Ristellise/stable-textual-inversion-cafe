@@ -55,12 +55,13 @@ def watch():
 
                 if log.joinpath("checkpoints").exists():
                     for ckpt in log.joinpath("checkpoints").iterdir():
-                        print(log_ckpt.joinpath(ckpt.name))
-                        write_bytes(log_ckpt.joinpath(ckpt.name), read_bytes(ckpt))
+                        if not log_ckpt.joinpath(ckpt.name).exists():
+                            write_bytes(log_ckpt.joinpath(ckpt.name), read_bytes(ckpt))
                 if log.joinpath("images").joinpath("train").exists():
                     for image in log.joinpath("images").joinpath("train").iterdir():
                         if image.stem.startswith("samples_scaled_gs") or image.stem.startswith("reconstruction_gs"):
-                            write_bytes(log_images.joinpath(image.name), read_bytes(image))
+                            if not log_ckpt.joinpath(image.name).exists():
+                                write_bytes(log_images.joinpath(image.name), read_bytes(image))
         time.sleep(10)
 
 #script
